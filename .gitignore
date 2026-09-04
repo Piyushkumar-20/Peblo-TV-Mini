@@ -1,0 +1,242 @@
+# ============================================================
+# OS / IDE
+# ============================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains
+.idea/
+*.iml
+
+
+# ============================================================
+# Environment / Secrets
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Local secret/config files
+secrets/
+credentials/
+*.secret
+
+
+# ============================================================
+# Python / FastAPI
+# ============================================================
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+
+# ============================================================
+# Alembic / Database
+# ============================================================
+
+# Local SQLite databases, if ever used for development
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL local dumps / temporary files
+*.dump
+*.sql.gz
+
+# NOTE:
+# Alembic migrations MUST NOT be ignored.
+# migrations/ should be committed to Git.
+
+
+# ============================================================
+# Local application storage
+# ============================================================
+
+# Uploaded artwork/files generated during local development
+storage/
+uploads/
+media/
+
+# Keep directory placeholders if we create them
+!storage/.gitkeep
+!uploads/.gitkeep
+!media/.gitkeep
+
+
+# ============================================================
+# Node / React / TypeScript
+# ============================================================
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+.vite/
+
+# React / Next.js caches
+.next/
+.turbo/
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager metadata
+.npm/
+.yarn/
+.pnpm-store/
+
+# Optional local package manager files
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+
+# ============================================================
+# Testing / Playwright / Cypress
+# ============================================================
+
+playwright-report/
+test-results/
+blob-report/
+cypress/videos/
+cypress/screenshots/
+
+
+# ============================================================
+# Docker
+# ============================================================
+
+# Local Docker environment overrides
+docker-compose.override.yml
+
+# Docker volumes / local data
+docker-data/
+postgres-data/
+
+# Docker logs
+*.log
+
+
+# ============================================================
+# Logs / temporary files
+# ============================================================
+
+*.log
+logs/
+tmp/
+temp/
+.cache/
+
+*.tmp
+*.temp
+*.swp
+*.swo
+
+
+# ============================================================
+# Generated files
+# ============================================================
+
+*.generated.*
+*.local
+
+# OS/editor temporary files
+*.bak
+*.orig
+
+
+# ============================================================
+# Local seed/output files
+# ============================================================
+
+# Generated catalogue should not be committed if produced locally.
+# The canonical seed/reference data SHOULD be committed.
+catalogue.json
+catalogue-*.json
+
+# Publish artifacts generated during development
+publish-output/
