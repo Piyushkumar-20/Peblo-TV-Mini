@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.session import Base
+from app.models import Artwork, Episode, PublishRun, Season, Show, User
 
 # Import models here so Alembic can detect them during autogenerate.
 # Models will be added as we build the data model.
