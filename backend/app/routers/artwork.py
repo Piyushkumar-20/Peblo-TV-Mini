@@ -2,6 +2,7 @@ from io import BytesIO
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from PIL import Image, UnidentifiedImageError
 from sqlalchemy.orm import Session
 
@@ -10,14 +11,11 @@ from app.models import Artwork, ArtworkType, Episode
 from app.storage.local import LocalStorage
 
 
-router = APIRouter(
-    prefix="/admin/artwork",
-    tags=["artwork"],
-)
+router = APIRouter(tags=["artwork"])
 
 storage = LocalStorage()
 
-MAX_FILE_SIZE = 200 * 1024
+MAX_ARTWORK_SIZE_BYTES = 200 * 1024
 
 EXPECTED_DIMENSIONS = {
     ArtworkType.POSTER: (600, 900),
@@ -26,7 +24,7 @@ EXPECTED_DIMENSIONS = {
 }
 
 
-@router.post("/upload")
+@router.post("/admin/artwork/upload")
 async def upload_artwork(
     episode_id: int,
     artwork_type: ArtworkType,
@@ -49,11 +47,11 @@ async def upload_artwork(
             detail="Artwork file is empty.",
         )
 
-    if len(data) > MAX_FILE_SIZE:
+    if len(data) > MAX_ARTWORK_SIZE_BYTES:
         raise HTTPException(
             status_code=400,
             detail=(
-                f"Artwork exceeds the 200 KB limit. "
+                "Artwork exceeds the 200 KB limit. "
                 f"Received {len(data)} bytes."
             ),
         )
@@ -62,6 +60,7 @@ async def upload_artwork(
         image = Image.open(BytesIO(data))
         image.verify()
 
+        # Re-open after verify() because verify() invalidates the image object.
         image = Image.open(BytesIO(data))
 
     except (UnidentifiedImageError, OSError):
@@ -82,24 +81,21 @@ async def upload_artwork(
             ),
         )
 
-    extension = "jpg"
-
     if image.format == "PNG":
         extension = "png"
     elif image.format == "WEBP":
         extension = "webp"
-    elif image.format in {"JPEG", "JPG"}:
+    else:
         extension = "jpg"
 
-    key = (
+    storage_key = (
         f"episodes/{episode_id}/"
         f"{artwork_type.value}/"
         f"{uuid4().hex}.{extension}"
     )
 
-    storage.save(key, data)
-
-    existing = (
+    # Replace the existing artwork for this slot.
+    existing_artworks = (
         db.query(Artwork)
         .filter(
             Artwork.episode_id == episode_id,
@@ -108,14 +104,16 @@ async def upload_artwork(
         .all()
     )
 
-    for artwork in existing:
-        storage.delete(artwork.storage_key)
-        db.delete(artwork)
+    for existing in existing_artworks:
+        storage.delete(existing.storage_key)
+        db.delete(existing)
+
+    storage.save(storage_key, data)
 
     artwork = Artwork(
         episode_id=episode_id,
         artwork_type=artwork_type,
-        storage_key=key,
+        storage_key=storage_key,
         width=image.width,
         height=image.height,
         file_size_bytes=len(data),
@@ -133,4 +131,24 @@ async def upload_artwork(
         "width": artwork.width,
         "height": artwork.height,
         "file_size_bytes": artwork.file_size_bytes,
+        "url": f"/catalog/artwork/{artwork.storage_key}",
     }
+
+
+@router.get("/catalog/artwork/{storage_key:path}")
+def get_artwork(storage_key: str):
+    try:
+        path = storage.get_path(storage_key)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=404,
+            detail="Artwork not found.",
+        ) from exc
+
+    if not path.exists() or not path.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="Artwork not found.",
+        )
+
+    return FileResponse(path)
