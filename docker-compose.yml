@@ -8,14 +8,68 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-peblo}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-peblo_dev_password}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-peblo} -d ${POSTGRES_DB:-peblo}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-peblo} -d ${POSTGRES_DB:-peblo}"
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: peblo-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-peblo}:${POSTGRES_PASSWORD:-peblo_dev_password}@postgres:5432/${POSTGRES_DB:-peblo}
+      AUTH_SECRET: ${AUTH_SECRET:-peblo-tv-mini-development-secret-change-this}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@peblo.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+      EDITOR_EMAIL: ${EDITOR_EMAIL:-editor@peblo.local}
+      EDITOR_PASSWORD: ${EDITOR_PASSWORD:-editor12345}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/storage:/app/storage
+    command:
+      [
+        "sh",
+        "-c",
+        "alembic -c alembic.ini upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+      ]
+
+  cms:
+    build:
+      context: ./cms
+    container_name: peblo-cms
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  viewer:
+    build:
+      context: ./viewer
+    container_name: peblo-viewer
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
