@@ -13,7 +13,7 @@ from app.routers import auth
 from app.routers import episodes
 from app.routers import seasons
 from app.routers import shows
-
+from app.routers import catalog
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,6 +53,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -66,7 +68,7 @@ app.include_router(shows.router)
 app.include_router(seasons.router)
 app.include_router(episodes.router)
 app.include_router(artwork.router)
-
+app.include_router(catalog.router)
 
 @app.get("/health")
 def health():
