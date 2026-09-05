@@ -23,10 +23,51 @@ Built for the Peblo Full-Stack Platform Engineer take-home challenge.
 - Docker Desktop
 - Docker Compose
 
-### Start Everything
+### Start Everything with Docker
 
-```bash
+From the project root:
+
+```powershell
+cd D:\peblo-tv-mini
 docker compose up --build
+```
+
+This starts PostgreSQL, the FastAPI backend, CMS, and Viewer together.
+
+To run in the background:
+
+```powershell
+docker compose up --build -d
+```
+
+To stop the stack:
+
+```powershell
+docker compose down
+```
+
+To stop the stack and remove the database volume:
+
+```powershell
+docker compose down -v
+```
+
+To view running containers:
+
+```powershell
+docker compose ps
+```
+
+To view backend logs:
+
+```powershell
+docker compose logs -f backend
+```
+
+To view all logs:
+
+```powershell
+docker compose logs -f
 ```
 
 Applications:
@@ -39,6 +80,107 @@ Applications:
 | Health | http://localhost:8000/health |
 
 The backend automatically runs Alembic migrations on startup.
+
+### Run Backend Manually (Without Docker)
+
+If PostgreSQL is already running locally and the Python virtual environment is configured:
+
+```powershell
+cd D:\peblo-tv-mini
+.\.venv\Scripts\activate
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
+
+Then open Swagger:
+
+```text
+http://localhost:8000/docs
+```
+
+Open ReDoc:
+
+```text
+http://localhost:8000/redoc
+```
+
+Check the health endpoint:
+
+```text
+http://localhost:8000/health
+```
+
+### Run CMS Manually
+
+```powershell
+cd D:\peblo-tv-mini\cms
+npm install
+npm run dev
+```
+
+CMS:
+
+```text
+http://localhost:5173
+```
+
+### Run Viewer Manually
+
+```powershell
+cd D:\peblo-tv-mini\viewer
+npm install
+npm run dev
+```
+
+Viewer:
+
+```text
+http://localhost:5174
+```
+
+### Run Backend Tests
+
+With Docker:
+
+```powershell
+docker compose exec backend pytest
+```
+
+Without Docker:
+
+```powershell
+cd D:\peblo-tv-mini\backend
+..\.venv\Scripts\activate
+pytest
+```
+
+### Useful API Commands
+
+Health check:
+
+```powershell
+curl http://localhost:8000/health
+```
+
+Get the published catalogue:
+
+```powershell
+curl http://localhost:8000/catalog
+```
+
+Get the validation report (requires an authenticated editor/admin token):
+
+```text
+GET http://localhost:8000/admin/validation-report
+```
+
+Publish the catalogue (requires an authenticated admin token):
+
+```text
+POST http://localhost:8000/admin/catalog/publish
+```
+
+Swagger provides an interactive way to authenticate and test all API endpoints.
 
 ### Development Credentials
 
