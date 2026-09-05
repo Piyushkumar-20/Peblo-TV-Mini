@@ -75,7 +75,7 @@ def build_catalogue(db: Session) -> dict:
             "id": show.id,
             "title": show.title,
             "synopsis": show.synopsis,
-            "category": show.category,
+            "categories": show.categories,
             "section": show.section,
             "episodes": sorted(
                 content_groups.values(),

@@ -36,7 +36,7 @@ def seed() -> None:
                 show = Show(
                     title=record["show_title"],
                     synopsis=record["synopsis"],
-                    category=record["categories"][0],
+                    categories=record["categories"],
                     section=record["section"],
                     language=record["language"],
                     is_published=record["status"] == "published",
